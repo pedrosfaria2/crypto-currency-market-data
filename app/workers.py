@@ -145,7 +145,7 @@ def subscribe_market_data(symbol, stop_event):
         stop_event (threading.Event): The event that signals when to stop the subscription.
     """
     print("Symbol     | Buy        | Sell       | High       | Low        | Open       | Last       | Volume     | Date")
-    print("-" * 90)
+    print("-" * 110)
 
     while not stop_event.is_set():  # Check if the stop event is set before each iteration
         try:

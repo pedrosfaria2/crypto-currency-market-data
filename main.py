@@ -76,7 +76,7 @@ def handle_subscribe_market_data():
 
     symbol = input("Enter the symbol to subscribe for market data: ")
     print(textwrap.fill(f"Subscribing to market data for symbol: {symbol}", width=70))
-    print("-" * 90)
+    print("-" * 110)
 
     # Clear the stop event before starting a new subscription
     stop_event.clear()
