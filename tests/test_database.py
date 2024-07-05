@@ -13,6 +13,10 @@ class TestDatabase(unittest.TestCase):
 
         This method is called once for the class. It creates a database engine
         and sets up the database schema based on the models defined in `Base`.
+        
+        Creates:
+            cls.engine: SQLAlchemy engine connected to the test database.
+            cls.Session: SQLAlchemy session factory bound to the test engine.
         """
         cls.engine = create_engine(TestConfig.DATABASE_URL, connect_args={"check_same_thread": False})
         Base.metadata.create_all(cls.engine)
@@ -25,6 +29,9 @@ class TestDatabase(unittest.TestCase):
 
         This method is called once for the class. It drops the database schema
         to clean up the database after all tests have run.
+        
+        Drops:
+            All tables defined in `Base`.
         """
         Base.metadata.drop_all(cls.engine)
 
@@ -34,6 +41,9 @@ class TestDatabase(unittest.TestCase):
 
         This method is called before every test method. It creates a new database
         session to ensure that each test runs in isolation.
+        
+        Creates:
+            self.db: SQLAlchemy session for interacting with the database.
         """
         self.db = self.Session()
 
@@ -43,6 +53,9 @@ class TestDatabase(unittest.TestCase):
 
         This method is called after every test method. It closes the database
         session to release resources and ensure isolation between tests.
+        
+        Closes:
+            self.db: SQLAlchemy session.
         """
         self.db.close()
 
@@ -53,6 +66,10 @@ class TestDatabase(unittest.TestCase):
         This test creates a new `Symbol` entry, adds it to the session, commits
         the transaction, and then retrieves the entry to verify that it was
         created correctly.
+
+        Asserts:
+            The retrieved `Symbol` entry is not None.
+            The `symbol` attribute of the retrieved entry matches the expected value.
         """
         symbol = Symbol(
             base_currency='BTC',

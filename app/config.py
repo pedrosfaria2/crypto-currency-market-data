@@ -31,6 +31,10 @@ class TestConfig(Config):
 
     This class extends the Config class and overrides specific configuration
     values for the test environment, such as the database URL.
+
+    Attributes:
+        DATABASE_URL (str): The URL for the test database connection, loaded
+                            from the environment variable "TEST_DATABASE_URL".
     """
     # Override the database URL for the test environment
     DATABASE_URL = os.getenv("TEST_DATABASE_URL")

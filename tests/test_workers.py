@@ -40,6 +40,10 @@ def test_market_data_creation(db_session):
 
     This test creates a new MarketData entry, adds it to the database session, commits the
     transaction, and then retrieves the entry to verify that it was created correctly.
+    
+    Asserts:
+        The retrieved MarketData entry is not None.
+        The attributes of the retrieved entry match the expected values.
     """
     market_data = MarketData(
         symbol="BTC-BRL",
@@ -76,6 +80,10 @@ def test_symbol_creation(db_session):
 
     This test creates a new Symbol entry, adds it to the database session, commits the
     transaction, and then retrieves the entry to verify that it was created correctly.
+    
+    Asserts:
+        The retrieved Symbol entry is not None.
+        The attributes of the retrieved entry match the expected values.
     """
     symbol = Symbol(
         base_currency="BTC",

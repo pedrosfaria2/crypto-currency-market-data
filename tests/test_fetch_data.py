@@ -15,7 +15,7 @@ class TestFetchData(unittest.TestCase):
     @patch('app.fetch_data.requests.get')
     def test_fetch_symbols(self, mock_get):
         """
-        Test `fetch_symbols` function.
+        Test the `fetch_symbols` function.
 
         This test verifies that the `fetch_symbols` function correctly handles
         the response from an API call. It uses `unittest.mock.patch` to mock
@@ -25,6 +25,10 @@ class TestFetchData(unittest.TestCase):
         
         Args:
             mock_get (MagicMock): Mock object for `requests.get`.
+        
+        Asserts:
+            The returned data contains the key 'base-currency'.
+            The returned data contains the key 'symbol'.
         """
         # Mock the API response
         mock_get.return_value.status_code = 200
@@ -40,7 +44,7 @@ class TestFetchData(unittest.TestCase):
     @patch('app.fetch_data.requests.get')
     def test_fetch_market_data(self, mock_get):
         """
-        Test `fetch_market_data` function.
+        Test the `fetch_market_data` function.
 
         This test verifies that the `fetch_market_data` function correctly handles
         the response from an API call. It uses `unittest.mock.patch` to mock
@@ -50,6 +54,10 @@ class TestFetchData(unittest.TestCase):
         
         Args:
             mock_get (MagicMock): Mock object for `requests.get`.
+        
+        Asserts:
+            The length of the returned data list is 1.
+            The 'pair' field in the returned data matches 'BTC-BRL'.
         """
         # Mock the API response
         mock_get.return_value.status_code = 200

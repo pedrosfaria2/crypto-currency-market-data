@@ -7,10 +7,10 @@ from .config import Config
 # Disable security warnings for unverified HTTPS requests
 disable_warnings(InsecureRequestWarning)
 
-# API URL configuration using environment variables
+# API URL configuration using environment variables, with a fallback to the Config class
 API_URL = os.getenv("API_URL", Config.API_URL)
 
-# Global session for reusing connections
+# Create a global session to reuse connections and improve performance
 session = requests.Session()
 
 def fetch_symbols():
@@ -22,15 +22,22 @@ def fetch_symbols():
 
     Returns:
         dict: A dictionary containing the symbol data fetched from the API.
+               The structure of this dictionary depends on the API's response format.
 
     Raises:
         requests.RequestException: If there is an error during the HTTP request.
+                                   This includes issues like network problems,
+                                   invalid responses, or server errors.
+
+    Example:
+        symbols = fetch_symbols()
+        print(symbols)  # Output: {'symbols': [{'symbol': 'BTC-BRL', 'description': 'Bitcoin to BRL'}, ...]}
     """
     url = f"{API_URL}symbols"
     try:
         response = session.get(url, verify=False)
-        response.raise_for_status()  # Raise an error for bad status codes
-        return response.json()  # Parse and return JSON response
+        response.raise_for_status()  # Raise an error for HTTP error responses
+        return response.json()  # Parse and return the JSON response
     except requests.RequestException as e:
         print(f"Error fetching symbols: {e}")
         raise
@@ -47,9 +54,16 @@ def fetch_market_data(symbols):
 
     Returns:
         list: A list of dictionaries containing market data for each symbol.
+              Each dictionary contains data fields such as price, volume, etc.
 
     Raises:
         requests.RequestException: If there is an error during the HTTP request.
+                                   This includes issues like network problems,
+                                   invalid responses, or server errors.
+
+    Example:
+        market_data = fetch_market_data(["BTC-BRL", "ETH-BRL"])
+        print(market_data)  # Output: [{'symbol': 'BTC-BRL', 'price': 50000, 'volume': 1000}, ...]
     """
     url = f"{API_URL}tickers"
     params = {
@@ -57,8 +71,8 @@ def fetch_market_data(symbols):
     }
     try:
         response = session.get(url, params=params, verify=False)
-        response.raise_for_status()  # Raise an error for bad status codes
-        return response.json()  # Parse and return JSON response
+        response.raise_for_status()  # Raise an error for HTTP error responses
+        return response.json()  # Parse and return the JSON response
     except requests.RequestException as e:
         print(f"Error fetching market data for symbols {symbols}: {e}")
         raise

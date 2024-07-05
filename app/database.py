@@ -28,7 +28,10 @@ def get_db():
         sqlalchemy.orm.Session: A SQLAlchemy session object.
 
     Usage:
-        Used in FastAPI dependency injection for route handlers.
+        Used in FastAPI dependency injection for route handlers. This function
+        ensures that each request to the FastAPI application has access to a
+        database session and that the session is properly closed after the request
+        is processed, preventing database connection leaks.
     """
     db = SessionLocal()
     try:
@@ -47,7 +50,10 @@ def get_test_db():
         sqlalchemy.orm.Session: A SQLAlchemy session object.
 
     Usage:
-        Used in tests for dependency injection.
+        Used in tests for dependency injection. This function facilitates testing by
+        providing a session connected to the test database, ensuring that each test
+        is isolated with its own database session and that the session is properly
+        closed after the test completes, preventing database connection leaks during testing.
     """
     db = TestSessionLocal()
     try:

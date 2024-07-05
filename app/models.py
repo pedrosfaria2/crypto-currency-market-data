@@ -34,7 +34,6 @@ class MarketData(Base):
     volume = Column(Float)
     date = Column(Integer)
 
-
 class Symbol(Base):
     """
     SQLAlchemy model for storing symbol information.
