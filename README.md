@@ -1,4 +1,4 @@
-# Trading Data Dashboard
+# Trading Data Tool
 
 This project is a trading data application designed to fetch, store, and visualize market data. The application includes functionalities to fetch symbols and market data from external APIs, store them in a database, and visualize them through a command-line interface.
 
