@@ -24,3 +24,13 @@ class Config:
     
     # The base URL for the API.
     API_URL = os.getenv("API_URL")
+
+class TestConfig(Config):
+    """
+    Configuration class to hold environment variables for the test environment.
+
+    This class extends the Config class and overrides specific configuration
+    values for the test environment, such as the database URL.
+    """
+    # Override the database URL for the test environment
+    DATABASE_URL = os.getenv("TEST_DATABASE_URL")

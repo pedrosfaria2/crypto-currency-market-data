@@ -1,7 +1,7 @@
 import time
 from app.database import engine, SessionLocal
 from app.fetch_data import fetch_symbols
-from app.workers import display_symbols, store_symbols, subscribe_market_data
+from app.workers import display_symbols, store_symbols, subscribe_market_data, display_market_data
 
 def init_db():
     """
@@ -38,7 +38,8 @@ def main_menu():
     menu_options = {
         '1': handle_view_symbols,
         '2': handle_subscribe_market_data,
-        '3': exit
+        '3': handle_view_market_data,
+        '4': exit
     }
 
     while True:
@@ -46,7 +47,8 @@ def main_menu():
         print("\nMain Menu")
         print("1. Consult and view available symbols")
         print("2. Subscribe to market data")
-        print("3. Exit")
+        print("3. View stored market data")
+        print("4. Exit")
         choice = input("Enter your choice: ")
         
         # Get the action corresponding to the user's choice. If the choice is invalid, use handle_invalid_choice.
@@ -92,6 +94,21 @@ def handle_subscribe_market_data():
     print("-" * 90)
     # Subscribe to receive market data for the provided symbol.
     subscribe_market_data(symbol)
+
+def handle_view_market_data():
+    """
+    Displays the stored market data.
+
+    This function fetches and displays the market data stored in the database
+    in a tabulated format.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    display_market_data()
 
 def handle_invalid_choice():
     """
