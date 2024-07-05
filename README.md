@@ -21,7 +21,7 @@ This project is a trading data application designed to fetch, store, and visuali
 
     ```bash
     git clone https://github.com/pedrosfaria2/crypto-currency-market-data.git
-    cd trading_data_dashboard
+    cd crypto-currency-market-data
     ```
 
 2. Create and activate a virtual environment:
