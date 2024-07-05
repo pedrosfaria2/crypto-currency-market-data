@@ -144,4 +144,3 @@ This project demonstrates how to build a trading data dashboard using Python. It
 ## License
 
 This project is licensed under the MIT License.
-"""
