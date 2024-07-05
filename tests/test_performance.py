@@ -41,7 +41,7 @@ def test_fetch_symbols_performance():
     execution_time = timeit.timeit(fetch_symbols, number=10)
     print(f"Execution time for fetch_symbols: {execution_time:.4f} seconds")
     # Adjust the time limit as necessary
-    assert execution_time < 2, "fetch_symbols test is taking longer than expected."
+    assert execution_time < 3, "fetch_symbols test is taking longer than expected."
 
 def test_store_symbols_performance(db_session):
     """

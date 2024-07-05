@@ -1,40 +1,25 @@
+import threading
+import textwrap
 import time
-from app.database import engine, SessionLocal
+import signal
+from app.database import engine
 from app.fetch_data import fetch_symbols
 from app.workers import display_symbols, store_symbols, subscribe_market_data, display_market_data
 
 def init_db():
     """
     Initializes the database by creating all the tables defined in the models.
-
-    This function uses SQLAlchemy's metadata to create all tables that are defined
-    in the Base model. It binds these tables to the engine, which is configured
-    to connect to the database.
-    
-    Args:
-        None
-
-    Returns:
-        None
     """
     from app.models import Base
     Base.metadata.create_all(bind=engine)
 
+# Event to signal stopping the market data subscription
+stop_event = threading.Event()
+
 def main_menu():
     """
     Displays the main menu and handles user choices.
-
-    This function enters a loop that continually displays a menu with options
-    to view symbols, subscribe to market data, or exit the program. It prompts
-    the user for input and calls the appropriate function based on the user's choice.
-    
-    Args:
-        None
-
-    Returns:
-        None
     """
-    # Dictionary mapping user choices to corresponding handler functions.
     menu_options = {
         '1': handle_view_symbols,
         '2': handle_subscribe_market_data,
@@ -43,90 +28,96 @@ def main_menu():
     }
 
     while True:
-        # Display the main menu.
-        print("\nMain Menu")
-        print("1. Consult and view available symbols")
-        print("2. Subscribe to market data")
-        print("3. View stored market data")
-        print("4. Exit")
+        print_menu()
         choice = input("Enter your choice: ")
-        
-        # Get the action corresponding to the user's choice. If the choice is invalid, use handle_invalid_choice.
         action = menu_options.get(choice, handle_invalid_choice)
         action()
+
+def print_menu():
+    """
+    Prints the main menu.
+    """
+    print(textwrap.dedent("""
+        Main Menu
+        1. Consult and view available symbols
+        2. Subscribe to market data. Press CTRL + C to stop the subscription.
+        3. View stored market data
+        4. Exit
+    """))
 
 def handle_view_symbols():
     """
     Fetches and stores available symbols, then displays them.
-
-    This function first fetches symbol data from an external API. It then
-    stores this data in the database and finally displays the stored symbols
-    in a tabulated format.
-
-    Args:
-        None
-
-    Returns:
-        None
     """
-    # Fetch symbol data from the API.
+    print("\nFetching and storing symbols...")
     symbols_data = fetch_symbols()
-    # Store the symbols in the database.
     store_symbols(symbols_data)
-    # Display the stored symbols.
     display_symbols()
 
 def handle_subscribe_market_data():
     """
-    Prompts the user for a symbol and subscribes to receive market data for it.
+    Handles the user's request to subscribe to market data for a specific symbol.
 
-    This function asks the user to input a symbol for which they want to receive
-    market data. It then calls the function to subscribe to market data updates
-    for that symbol, displaying the data as it is received.
-
-    Args:
-        None
-
-    Returns:
-        None
+    This function does the following:
+    1. Prompts the user to enter the desired symbol.
+    2. Clears the global `stop_event` flag, indicating that the subscription should start.
+    3. Creates a new daemon thread (`subscription_thread`) to run the `subscribe_market_data` function.
+       - Daemon threads are automatically terminated when the main program exits.
+    4. Starts the subscription thread.
+    5. Enters a loop that waits for the user to press Ctrl+C (KeyboardInterrupt).
+    6. If Ctrl+C is pressed, the following happens:
+       - Sets the `stop_event` flag to signal the subscription thread to stop.
+       - Waits for the `subscription_thread` to finish using `join()`.
+       - Prints a message indicating that the subscription has been stopped.
+    7. After the subscription thread has finished (either by stopping or error), the main menu is re-displayed.
     """
+
+    global subscription_thread  # Access the global subscription_thread variable
+
     symbol = input("Enter the symbol to subscribe for market data: ")
+    print(textwrap.fill(f"Subscribing to market data for symbol: {symbol}", width=70))
     print("-" * 90)
-    # Subscribe to receive market data for the provided symbol.
-    subscribe_market_data(symbol)
+
+    # Clear the stop event before starting a new subscription
+    stop_event.clear()
+
+    # Create and start a new thread for the subscription
+    subscription_thread = threading.Thread(target=subscribe_market_data, args=(symbol, stop_event))
+    subscription_thread.daemon = True  # Set as a daemon thread
+    subscription_thread.start()
+
+    try:
+        # Wait for the user to press Ctrl+C to stop the subscription
+        while subscription_thread.is_alive():  # Continue while the thread is alive
+            time.sleep(1)
+    except KeyboardInterrupt:
+        # Signal the subscription thread to stop and wait for it to finish
+        stop_event.set()
+        subscription_thread.join()
+        print("\nMarket data subscription stopped.")
+
 
 def handle_view_market_data():
     """
     Displays the stored market data.
-
-    This function fetches and displays the market data stored in the database
-    in a tabulated format.
-
-    Args:
-        None
-
-    Returns:
-        None
     """
+    print("\nDisplaying stored market data...")
     display_market_data()
+
+def handle_stop_subscription():
+    """
+    Signals the subscription thread to stop.
+    """
+    stop_event.set()
+    print("\nMarket data subscription stopped.")
 
 def handle_invalid_choice():
     """
     Informs the user that the choice is invalid.
-
-    This function is called when the user makes a choice that is not
-    recognized by the main menu. It simply prints an error message.
-
-    Args:
-        None
-
-    Returns:
-        None
     """
-    print("Invalid choice. Please try again.")
+    print(textwrap.fill("Invalid choice. Please try again.", width=70))
 
 if __name__ == "__main__":
-    # Initialize the database.
     init_db()
-    # Start the main menu.
+    signal.signal(signal.SIGINT, lambda sig, frame: handle_stop_subscription())
     main_menu()

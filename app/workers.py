@@ -135,18 +135,22 @@ def display_market_data():
         for data in market_data:
             print(f"{data.symbol:<10} {data.buy:<10} {data.sell:<10} {data.high:<10} {data.low:<10} {data.open:<10} {data.last:<10} {data.volume:<10} {data.date}")
 
-def subscribe_market_data(symbol):
+def subscribe_market_data(symbol, stop_event):
     """
-    Subscribes to market data for a specific symbol and continuously fetches and stores the data.
+    Subscribes to market data for a specific symbol and continuously fetches and stores the data,
+    stopping when the stop_event is set.
 
     Args:
         symbol (str): The symbol to subscribe to for market data.
+        stop_event (threading.Event): The event that signals when to stop the subscription.
     """
-    print("Symbol     | Buy        | Sell       | High       | Low        | Open       | Last       | Volume     | Date")
+    print("Symbol     | Buy        | Sell       | High       | Low        | Open       | Last       | Volume     | Date")
     print("-" * 90)
-    while True:
+
+    while not stop_event.is_set():  # Check if the stop event is set before each iteration
         try:
             market_data = fetch_market_data([symbol])
+
             market_data_list = [
                 [
                     item['pair'],
@@ -163,7 +167,10 @@ def subscribe_market_data(symbol):
             ]
             print_market_data(market_data_list)
             store_market_data(market_data)
-            time.sleep(1)  # Wait 1 second before fetching data again
+
+            # Small delay to avoid excessive requests (adjust as needed)
+            time.sleep(1)  
         except Exception as e:
             print(f"An error occurred: {e}")
-            time.sleep(1)  # Wait 1 second before trying again
+            time.sleep(1)
+
